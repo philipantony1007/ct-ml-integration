@@ -1,5 +1,5 @@
 deployAs:
-  - name: cart-recommendation
+  - name: cartrecommendation
     applicationType: service
     endpoint: /cart-recommendation
     scripts:
@@ -24,7 +24,7 @@ deployAs:
         - key: CTP_SCOPE
           description: commercetools Composable Commerce client scope
           required: true
-  - name: pdp-recommendation
+  - name: pdprecommendation
     applicationType: service
     endpoint: /pdp-recommendation
     scripts:

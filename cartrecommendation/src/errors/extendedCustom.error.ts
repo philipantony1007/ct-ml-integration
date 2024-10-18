@@ -18,14 +18,14 @@ export class NoSkusInCartError extends CustomError {
 
 export class NoLineItemsCartError extends CustomError {
     constructor(cartid:string) {
-      super(404, `Cart with ID ${cartid} contains no line items.`);
+      super(404, `Cart with ID: ${cartid} contains no line items.`);
     }
   }
 
 
   export class CartNotFoundError extends CustomError {
     constructor(cartid:string) {
-      super(404, `Cart with ID ${cartid} is not found.`);
+      super(404, `Cart with ID: ${cartid} is not found.`);
     }
   }
 

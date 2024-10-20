@@ -15,6 +15,7 @@ export const readConfiguration = () => {
     projectKey: process.env.CTP_PROJECT_KEY as string,
     scope: process.env.CTP_SCOPE,
     region: process.env.CTP_REGION as string,
+    ml_model_endpoint: process.env.ML_MODEL_END_POINT as string,
   };
 
   const validationErrors = getValidateMessages(envValidators, envVars);
@@ -26,6 +27,25 @@ export const readConfiguration = () => {
       validationErrors
     );
   }
+
+  const isValidUrl = (urlString: string): boolean => {
+    try {
+      new URL(urlString);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  };
+  
+
+  if (!envVars.ml_model_endpoint || !isValidUrl(envVars.ml_model_endpoint)) {
+    throw new CustomError(
+      'InvalidEnvironmentVariablesError',
+      'Invalid Environment Variables: ML_MODEL_END_POINT is not a valid URL. Please check your .env file.'
+    );
+  }
+
+  
 
   return envVars;
 };

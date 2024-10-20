@@ -1,4 +1,5 @@
 // productProjections.repository.ts
+import { ProductProjection } from '@commercetools/platform-sdk';
 import { createApiRoot } from '../client/create.client';
 
 export const getProductsBySku = async (sku: string): Promise<any[]> => {

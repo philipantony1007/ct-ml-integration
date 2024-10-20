@@ -1,13 +1,12 @@
 // cart.service.ts
 import { getCartById } from '../repository/cart.repository ';
 import CustomError from '../errors/custom.error';
-import axios from 'axios';
-import { readMLModelConfiguration } from '../utils/mlModel.utils';
+import { Cart } from '@commercetools/platform-sdk';
 
 // Service function to get SKUs from a cart
 export const getCartSkus = async (cartId: string): Promise<string[]> => {
     try {
-      const cart = await getCartById(cartId);
+      const cart:Cart = await getCartById(cartId);
       
       // Collect the SKUs into an array
       const skus: string[] = cart.lineItems.map((item: any) => item.variant.sku);
@@ -24,19 +23,18 @@ export const getCartSkus = async (cartId: string): Promise<string[]> => {
     }
   };
   
-
+import { createMLClient } from '../client/ml.client';
 // Service function to send SKUs to ML model
 export const sendSkusToMLModel = async (skus: string[]): Promise<string[]> => {
     try {
       console.log('Sending SKUs:', skus);
-
-      const envVars = readMLModelConfiguration();
       
-      const mlModelEndpoint = envVars.ml_model_endpoint;
+      const mlClient = createMLClient()
       const payload = {
         skus: skus, 
       };
-      const response = await axios.post(mlModelEndpoint, payload);
+
+      const response = await mlClient.predict(payload);
       return response.data.recommended_product_skus;
     
     } catch (error: any) {

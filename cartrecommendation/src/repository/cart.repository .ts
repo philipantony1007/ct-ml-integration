@@ -2,6 +2,7 @@
 import CustomError from '../errors/custom.error';
 import { createApiRoot } from '../client/create.client';
 import { CartNotFoundError, NoLineItemsCartError } from '../errors/extendedCustom.error';
+import { Cart } from '@commercetools/platform-sdk';
 
 // Repository function to get cart data by ID
 export const getCartById = async (cartId: string) => {

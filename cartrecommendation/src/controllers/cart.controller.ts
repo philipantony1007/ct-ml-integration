@@ -15,12 +15,13 @@ export const post = async (request: Request, response: Response) => {
 
   try {
 
-    const skus = await getCartSkus(cartId);
-    console.log('SKUs from cart:', skus);
+    const skus: string[] = await getCartSkus(cartId);
+    //console.log('SKUs from cart:', skus);
 
     // Send SKUs to ML model and fetch recommended SKUs
-    const recommended_product_skus = await sendSkusToMLModel(skus);
+    const recommended_product_skus:string[] = await sendSkusToMLModel(skus);
     console.log(recommended_product_skus);
+
 
     // Fetch all recommended products based on the SKUs
     const allRecommendedProducts = await fetchProducts(recommended_product_skus);

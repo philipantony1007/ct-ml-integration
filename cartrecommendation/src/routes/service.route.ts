@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { logger } from '../utils/logger.utils';
-import { post } from '../controllers/cart.controller';
+import { post } from '../controllers/recommendation.controller';
 
 const serviceRouter = Router();
 

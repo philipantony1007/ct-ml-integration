@@ -1,7 +1,7 @@
 import { expect } from '@jest/globals';
 import request from 'supertest';
 import app from '../../src/app';
-import * as serviceController from '../../src/controllers/service.controller';
+import * as serviceController from '../../src/controllers/recommendation.controller';
 import { readConfiguration } from '../../src/utils/config.utils';
 
 jest.mock('../../src/utils/config.utils');
@@ -9,6 +9,8 @@ describe('Testing router', () => {
   beforeEach(() => {
     (readConfiguration as jest.Mock).mockClear();
   });
+
+
   test('Post to non existing route', async () => {
     const response = await request(app).post('/none');
     expect(response.status).toBe(404);
@@ -16,20 +18,24 @@ describe('Testing router', () => {
       message: 'Path not found.',
     });
   });
+
+
   test('Post invalid body', async () => {
-    const response = await request(app).post('/service').send({
+    const response = await request(app).post('/cart-recommendation').send({
       message: 'hello world',
     });
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
-      message: 'Bad request - Missing body parameters.',
+      message: 'Bad request - Missing \"cartId\" in the request body or invalid JSON format.',
     });
   });
+
+
   test('Post empty body', async () => {
-    const response = await request(app).post('/service');
+    const response = await request(app).post('/cart-recommendation');
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
-      message: 'Bad request - Missing body parameters.',
+      message: 'Bad request - Missing \"cartId\" in the request body or invalid JSON format.',
     });
   });
 });
@@ -48,9 +54,11 @@ describe('unexpected error', () => {
     // Restore the original implementation
     postMock.mockRestore();
   });
+
+  
   test('should handle errors thrown by post method', async () => {
     // Call the route handler
-    const response = await request(app).post('/service');
+    const response = await request(app).post('/cart-recommendation');
     expect(response.status).toBe(500);
     expect(response.body).toEqual({ message: 'Internal server error' });
   });

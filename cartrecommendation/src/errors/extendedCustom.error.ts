@@ -23,12 +23,20 @@ export class NoLineItemsCartError extends CustomError {
   }
 
 
+
+
   export class CartNotFoundError extends CustomError {
     constructor(cartid:string) {
       super(404, `Cart with ID: ${cartid} is not found.`);
     }
   }
 
+
+  export class InvalidMLResponse extends CustomError {
+    constructor() {
+      super(500, `Invalid response from ML model`);
+    }
+  }
 
 
 

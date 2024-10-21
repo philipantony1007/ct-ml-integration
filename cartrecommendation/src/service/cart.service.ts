@@ -1,45 +1,69 @@
-// cart.service.ts
+
 import { getCartById } from '../repository/cart.repository ';
 import CustomError from '../errors/custom.error';
-import { Cart } from '@commercetools/platform-sdk';
+import { CartNotFoundError, InvalidMLResponse, NoLineItemsCartError } from '../errors/extendedCustom.error';
+import { readConfiguration } from '../utils/config.utils';
+import axios from 'axios';
 
-// Service function to get SKUs from a cart
 export const getCartSkus = async (cartId: string): Promise<string[]> => {
-    try {
-      const cart:Cart = await getCartById(cartId);
-      
-      // Collect the SKUs into an array
-      const skus: string[] = cart.lineItems.map((item: any) => item.variant.sku);
-      console.log(skus);
-      return skus;
+  try {
+    const cart = await getCartById(cartId);
 
-      
-    } catch (error) {
-      if (error instanceof CustomError) {
-        throw error;
-      }
-      console.error(`Error processing SKUs for cart ID ${cartId}:`, error);
-      throw new CustomError(500, 'Error in service layer.');
+    if (!cart.body || !cart.body.lineItems || cart.body.lineItems.length === 0) {
+      throw new NoLineItemsCartError(cartId); 
     }
-  };
-  
-import { createMLClient } from '../client/ml.client';
-// Service function to send SKUs to ML model
+
+    const skus: string[] = cart.body.lineItems.map((item: any) => item.variant.sku);
+    return skus;  
+
+  } catch (error: any) {
+    console.error(`Error fetching SKUs for cart ID ${cartId}:`, error);
+
+    if (error instanceof NoLineItemsCartError || error instanceof CartNotFoundError) {
+      throw error; 
+    }
+
+    throw new CustomError(500, 'Error in service layer while fetching SKUs.');
+  }
+};
+
 export const sendSkusToMLModel = async (skus: string[]): Promise<string[]> => {
-    try {
-      console.log('Sending SKUs:', skus);
-      
-      const mlClient = createMLClient()
-      const payload = {
-        skus: skus, 
-      };
+  try {
+    console.log('Sending SKUs:', skus);
 
-      const response = await mlClient.predict(payload);
-      return response.data.recommended_product_skus;
-    
-    } catch (error: any) {
-        console.error('Error sending SKUs to ML model:', error);
-        throw new CustomError(500, error.message, error);
+    const payload = {
+      skus: skus,
+    };
+
+    const config = readConfiguration();
+    const endpointUrl = config.ml_model_endpoint;
+  
+    const axiosInstance = axios.create({
+      baseURL: endpointUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        // Add any additional headers if required
+      },
+    });
+
+    const recommendedSkus = await axiosInstance.post('', payload);
+
+
+    if (!recommendedSkus.data.recommended_product_skus ||
+       !Array.isArray(recommendedSkus.data.recommended_product_skus)) {
+      throw new InvalidMLResponse();
     }
-  };
+
+    // Return the recommended SKUs
+    return recommendedSkus.data.recommended_product_skus;
+  } catch (error: any) {
+    console.error('Error sending SKUs to ML model:', error);
+
+    if (error instanceof CustomError) {
+      throw error;
+    }
+
+    throw new CustomError(500, 'Error processing SKUs in ML model');
+  }
+};
   
